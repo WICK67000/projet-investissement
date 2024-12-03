@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation d'Investissement Immobilier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f7f9fc;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result-section {
+            background: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .result-section h3 {
+            margin-bottom: 10px;
+            color: #4caf50;
+        }
+
+        ul {
+            margin: 10px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        ul li {
+            margin: 5px 0;
+        }
+
+        ul li:before {
+            content: "✔";
+            margin-right: 10px;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        ul.error li:before {
+            content: "✖";
+            color: #f44336;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Simulation d'Investissement Immobilier</h1>
+        <p>Évaluez la rentabilité de votre projet avec précision.</p>
+    </header>
+    <main>
+        <form id="simulationForm">
+            <h2>Entrez vos paramètres</h2>
+
+            <label for="prixBien">Prix du bien immobilier (€)</label>
+            <input type="number" id="prixBien" required>
+
+            <label for="apportPersonnel">Apport personnel (€)</label>
+            <input type="number" id="apportPersonnel" required>
+
+            <label for="tauxInteret">Taux d'intérêt annuel (%)</label>
+            <input type="number" step="0.01" id="tauxInteret" required>
+
+            <label for="dureeCredit">Durée du crédit (années)</label>
+            <input type="number" id="dureeCredit" required>
+
+            <label for="loyerMensuel">Loyer mensuel attendu (€)</label>
+            <input type="number" id="loyerMensuel" required>
+
+            <label for="chargesAnnuelles">Charges annuelles (€)</label>
+            <input type="number" id="chargesAnnuelles" required>
+
+            <label for="travaux">Budget travaux (€)</label>
+            <input type="number" id="travaux" required>
+
+            <label for="vacanceLocative">Vacance locative estimée (%)</label>
+            <input type="number" step="0.01" id="vacanceLocative" required>
+
+            <button type="button" onclick="calculerInvestissement()">Calculer</button>
+        </form>
+
+        <div id="results">
+            <h2>Résultats de la simulation</h2>
+
+            <div id="resultDetails" class="result-section"></div>
+            <div id="resultAdvantages" class="result-section"></div>
+            <div id="resultPlan" class="result-section"></div>
+        </div>
+    </main>
+
+    <script>
+        function calculerInvestissement() {
+            // Récupérer les valeurs des champs
+            const prixBien = parseFloat(document.getElementById('prixBien').value);
+            const apportPersonnel = parseFloat(document.getElementById('apportPersonnel').value);
+            const tauxInteret = parseFloat(document.getElementById('tauxInteret').value) / 100;
+            const dureeCredit = parseInt(document.getElementById('dureeCredit').value);
+            const loyerMensuel = parseFloat(document.getElementById('loyerMensuel').value);
+            const chargesAnnuelles = parseFloat(document.getElementById('chargesAnnuelles').value);
+            const travaux = parseFloat(document.getElementById('travaux').value);
+            const vacanceLocative = parseFloat(document.getElementById('vacanceLocative').value) / 100;
+
+            // Calculs
+            const montantEmprunt = prixBien - apportPersonnel;
+            const tauxMensuel = tauxInteret / 12;
+            const nbMensualites = dureeCredit * 12;
+            const mensualiteCredit = montantEmprunt * (tauxMensuel * Math.pow(1 + tauxMensuel, nbMensualites)) / (Math.pow(1 + tauxMensuel, nbMensualites) - 1);
+            const loyerAnnuel = loyerMensuel * 12 * (1 - vacanceLocative);
+            const rendementBrut = (loyerAnnuel / prixBien) * 100;
+            const cashflowAnnuel = loyerAnnuel - (mensualiteCredit * 12 + chargesAnnuelles + travaux / dureeCredit);
+            const rendementNet = (cashflowAnnuel / prixBien) * 100;
+
+            // Résultats
+            const resultDetails = `
+                <h3>Détails financiers</h3>
+                <p><strong>Montant emprunté :</strong> ${montantEmprunt.toFixed(2)} €</p>
+                <p><strong>Mensualité du crédit :</strong> ${mensualiteCredit.toFixed(2)} €</p>
+                <p><strong>Rendement brut :</strong> ${rendementBrut.toFixed(2)} %</p>
+                <p><strong>Cashflow annuel :</strong> ${cashflowAnnuel.toFixed(2)} €</p>
+                <p><strong>Rendement net :</strong> ${rendementNet.toFixed(2)} %</p>
+            `;
+
+            const advantages = [
+                rendementBrut > 5 ? "Rendement locatif brut attractif." : null,
+                cashflowAnnuel > 0 ? "Cashflow positif." : null,
+                vacanceLocative < 0.1 ? "Vacance locative raisonnable." : null
+            ].filter(Boolean);
+
+            const plan = [
+                rendementBrut <= 5 ? "Trouvez un bien à meilleur rendement." : null,
+                cashflowAnnuel <= 0 ? "Augmentez le loyer ou négociez un meilleur taux d'emprunt." : null,
+                vacanceLocative >= 0.1 ? "Réduisez la vacance locative avec un bon emplacement." : null
+            ].filter(Boolean);
+
+            const resultAdvantages = `
+                <h3>Avantages</h3>
+                <ul>${advantages.map(a => `<li>${a}</li>`).join("")}</ul>
+            `;
+
+            const resultPlan = `
+                <h3>Plan d'amélioration</h3>
+                <ul class="error">${plan.map(p => `<li>${p}</li>`).join("")}</ul>
+            `;
+
+            document.getElementById('resultDetails').innerHTML = resultDetails;
+            document.getElementById('resultAdvantages').innerHTML = resultAdvantages;
+            document.getElementById('resultPlan').innerHTML = resultPlan;
+
+            document.getElementById('results').style.display = "block";
+        }
+    </script>
+</body>
+</html>
